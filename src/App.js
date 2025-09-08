@@ -1,23 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useRef } from "react";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3001"); // will change to Render URL later
 
 function App() {
+  const localVideoRef = useRef(null);
+
+  useEffect(() => {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        localVideoRef.current.srcObject = stream;
+        socket.emit("join", { user: "Priyanshu" });
+      })
+      .catch(err => {
+        console.error("Media error:", err);
+      });
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ padding: "2rem", textAlign: "center" }}>
+      <h1>Smart Health Video App</h1>
+      <video
+        ref={localVideoRef}
+        autoPlay
+        playsInline
+        muted
+        style={{ width: "400px", height: "300px", backgroundColor: "black" }}
+      />
     </div>
   );
 }
