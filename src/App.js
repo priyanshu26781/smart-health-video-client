@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3001"); // will change to Render URL later
+const socket = io("https://smart-health-video-server.onrender.com"); // will change to Render URL later
 
 function App() {
   const localVideoRef = useRef(null);
