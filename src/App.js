@@ -1,32 +1,30 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { io } from "socket.io-client";
+import Register from "./components/Register";
+import CallDialog from "./components/CallDialog";
+import OnlineList from "./components/OnlineList";
 
-const socket = io("https://smart-health-video-server.onrender.com"); // will change to Render URL later
+const socket = io("https://smart-health-video-server.onrender.com");
 
 function App() {
-  const localVideoRef = useRef(null);
+  const [email, setEmail] = useState("");
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then(stream => {
-        localVideoRef.current.srcObject = stream;
-        socket.emit("join", { user: "Priyanshu" });
-      })
-      .catch(err => {
-        console.error("Media error:", err);
-      });
+    socket.on("online-users", setOnlineUsers);
+    return () => socket.off("online-users");
   }, []);
 
   return (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
-      <h1>Smart Health Video App</h1>
-      <video
-        ref={localVideoRef}
-        autoPlay
-        playsInline
-        muted
-        style={{ width: "400px", height: "300px", backgroundColor: "black" }}
-      />
+    <div style={{ padding: "2rem" }}>
+      {!email ? (
+        <Register socket={socket} setEmail={setEmail} />
+      ) : (
+        <>
+          <OnlineList users={onlineUsers} />
+          <CallDialog socket={socket} email={email} />
+        </>
+      )}
     </div>
   );
 }
